@@ -3,6 +3,7 @@ package com.example.suspectdetectionapp;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton fabCamera, fabUpload;
     Bitmap mBitmap;
     TextView textView;
+    Button submitButton;
 
 
 
@@ -108,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         final TextView imageTextView=findViewById(R.id.textView);
         imageView=findViewById(R.id.imageView);
         textView=findViewById(R.id.textView);
-
+        submitButton=findViewById(R.id.submit_button);
         askPermissions();
         initRetrofitClient();
 
@@ -117,29 +119,17 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                startActivityForResult(getPickImageChooserIntent(), IMAGE_RESULT);
+            }
+        });
 
-
-                if ((ContextCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
-                    if ((ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) && (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                            Manifest.permission.READ_EXTERNAL_STORAGE))) {
-
-                    } else {
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-                                REQUEST_PERMISSIONS);
-                    }
-                } else {
-                    Log.e("Else", "Else");
-                    Intent camera_intent
-                            = new Intent(MediaStore
-                            .ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(camera_intent,picId);
-
-
-                    imageTextView.setText(" Button Clicked ! ");
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mBitmap != null)
+                    multipartImageUpload();
+                else {
+                    Toast.makeText(getApplicationContext(), "Bitmap is null. Try again", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -439,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
 
@@ -617,21 +607,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.fab:
-                startActivityForResult(getPickImageChooserIntent(), IMAGE_RESULT);
-                break;
 
-            case R.id.fabUpload:
-                if (mBitmap != null)
-                    multipartImageUpload();
-                else {
-                    Toast.makeText(getApplicationContext(), "Bitmap is null. Try again", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
+
 
 }
